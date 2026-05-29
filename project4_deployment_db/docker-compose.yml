@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db_deploy:
+    image: postgres:15
+    container_name: odoo_deployment_db_db
+    environment:
+      POSTGRES_DB: odoo_deployment
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - db_data_deploy:/var/lib/postgresql/data
+      - ./backups:/backups
+    ports:
+      - "5435:5432"
+
+  odoo_deploy:
+    image: odoo:17
+    container_name: odoo_deployment_db
+    depends_on:
+      - db_deploy
+    environment:
+      HOST: db_deploy
+      USER: odoo
+      PASSWORD: odoo
+    ports:
+      - "8072:8069"
+    volumes:
+      - ./addons:/mnt/extra-addons
+      - ./config:/etc/odoo
+      - ./migrations:/migrations
+      - ./backups:/backups
+
+volumes:
+  db_data_deploy:
