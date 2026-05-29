@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db_integration:
+    image: postgres:15
+    container_name: odoo_integration_db
+    environment:
+      POSTGRES_DB: odoo_integration
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - db_data_integration:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+
+  odoo_integration:
+    image: odoo:17
+    container_name: odoo_integration
+    depends_on:
+      - db_integration
+    environment:
+      HOST: db_integration
+      USER: odoo
+      PASSWORD: odoo
+    ports:
+      - "8073:8069"
+    volumes:
+      - ./addons:/mnt/extra-addons
+      - ./config:/etc/odoo
+
+  # Example: Redis for caching
+  redis_integration:
+    image: redis:7-alpine
+    container_name: odoo_integration_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  db_data_integration:
